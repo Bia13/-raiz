@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
+import Rays from "@/components/light-rays";
+import { FlowButton } from "@/components/flow-button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
 import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
@@ -14,8 +15,6 @@ const OPTIONS = [
   "Com sede de mais Dele",
   "Grato e em paz",
 ];
-
-const RAYS = [-26, -13, 0, 13, 26];
 
 export default function JourneyPage() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -38,21 +37,17 @@ export default function JourneyPage() {
               "linear-gradient(180deg, #43301d 0%, #b8834a 42%, #f3cf9a 72%, #faf6ec 100%)",
           }}
         />
-        <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
-          {RAYS.map((deg, i) => (
-            <span
-              key={deg}
-              className="absolute bottom-0 h-[180%] w-3 origin-bottom blur-md"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(255,244,214,0.65), transparent)",
-                transform: `rotate(${deg}deg)`,
-                opacity: i === 2 ? 0.9 : 0.45,
-              }}
-            />
-          ))}
-        </div>
-        <div className="absolute inset-x-0 bottom-9 flex justify-center">
+        <Rays
+          backgroundColor="transparent"
+          raysColor={{ mode: "single", color: "#ffe9c4" }}
+          intensity={45}
+          rays={28}
+          reach={35}
+          position={50}
+          animation={{ animate: true, speed: 6 }}
+          style={{ zIndex: 0 }}
+        />
+        <div className="absolute inset-x-0 bottom-9 z-10 flex justify-center">
           <svg
             viewBox="0 0 24 24"
             className="h-7 w-7 text-[#fff7e6]"
@@ -98,9 +93,26 @@ export default function JourneyPage() {
                     : "border-muted-foreground/40"
                 )}
               >
-                {isSelected && (
-                  <Check className="h-3 w-3 text-accent-foreground" strokeWidth={3} />
-                )}
+                <svg viewBox="0 0 20 20" className="h-3 w-3 text-accent-foreground">
+                  <motion.path
+                    d="M 0 4.5 L 3.182 8 L 10 0"
+                    fill="transparent"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    transform="translate(5 6)"
+                    initial={false}
+                    animate={{
+                      pathLength: isSelected ? 1 : 0,
+                      opacity: isSelected ? 1 : 0,
+                    }}
+                    transition={{
+                      pathLength: { ease: "easeOut", duration: 0.3 },
+                      opacity: { duration: 0 },
+                    }}
+                  />
+                </svg>
               </span>
             </button>
           );
@@ -108,18 +120,24 @@ export default function JourneyPage() {
       </div>
 
       {selected.length > 0 ? (
-        <Button
-          size="lg"
-          className="mt-6 w-full rounded-full shadow-elevated"
-          nativeButton={false}
-          render={<Link href="/recursos" transitionTypes={["nav-forward"]} />}
+        <FlowButton
+          asChild
+          fullWidth
+          borderColor="var(--accent)"
+          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-elevated"
+        >
+          <Link href="/recursos" transitionTypes={["nav-forward"]}>
+            Continuar
+          </Link>
+        </FlowButton>
+      ) : (
+        <FlowButton
+          fullWidth
+          disabled
+          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground opacity-40"
         >
           Continuar
-        </Button>
-      ) : (
-        <Button size="lg" disabled className="mt-6 w-full rounded-full opacity-40">
-          Continuar
-        </Button>
+        </FlowButton>
       )}
     </div>
     </PageTransition>

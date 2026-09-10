@@ -8,7 +8,8 @@ import {
   ChevronRight,
   Pencil,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import FallbackAvatar from "@/components/fallback-avatar";
+import { TiltCard } from "@/components/tilt-card";
 import { Badge } from "@/components/ui/badge";
 import { StreakBadge } from "@/components/streak-badge";
 import { VERSES, verseRef } from "@/lib/reading-data";
@@ -46,11 +47,11 @@ export default function PerfilPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <div className="relative">
-          <Avatar size="lg" className="shadow-elevated ring-2 ring-card">
-            <AvatarFallback className="bg-primary/10 font-serif text-base font-medium text-primary">
-              M
-            </AvatarFallback>
-          </Avatar>
+          <FallbackAvatar
+            name="Marcos Andrade"
+            size={40}
+            className="shadow-elevated ring-2 ring-card"
+          />
           <button
             type="button"
             aria-label="Editar perfil"
@@ -88,7 +89,13 @@ export default function PerfilPage() {
         ))}
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#3b2f22] via-[#2c2318] to-[#1e170f] p-5 text-center text-[#f6f0e2] shadow-elevated-lg">
+      <TiltCard
+        tiltLimit={9}
+        scale={1.02}
+        perspective={900}
+        effect="gravitate"
+        className="rounded-2xl bg-gradient-to-br from-[#3b2f22] via-[#2c2318] to-[#1e170f] p-5 text-center text-[#f6f0e2] shadow-elevated-lg"
+      >
         <div className="pointer-events-none absolute -top-14 -right-8 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
         <p className="relative mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#d3865c]">
           Baseado na sua leitura de hoje
@@ -99,7 +106,7 @@ export default function PerfilPage() {
         <span className="relative text-[11px] font-semibold text-[#f6f0e2]/60">
           {verseRef(todayVerse.number)}
         </span>
-      </div>
+      </TiltCard>
 
       <div>
         <div className="mb-2.5 flex items-center justify-between">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import FallbackAvatar from "@/components/fallback-avatar";
+import { TiltCard } from "@/components/tilt-card";
 import { Badge } from "@/components/ui/badge";
 import { StreakBadge } from "@/components/streak-badge";
 import { PageTransition } from "@/components/page-transition";
@@ -28,11 +29,11 @@ export default function HomePage() {
     <div className="flex flex-col gap-7">
       <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
         <div className="flex items-center gap-3">
-          <Avatar size="lg" className="shadow-elevated ring-2 ring-card">
-            <AvatarFallback className="bg-primary/10 font-serif text-base font-medium text-primary">
-              M
-            </AvatarFallback>
-          </Avatar>
+          <FallbackAvatar
+            name="Marcos Andrade"
+            size={40}
+            className="shadow-elevated ring-2 ring-card"
+          />
           <div>
             <p className="text-xs text-muted-foreground">Bom dia,</p>
             <p className="font-serif text-lg leading-tight font-medium">
@@ -65,7 +66,13 @@ export default function HomePage() {
         ))}
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b2f22] via-[#2c2318] to-[#1e170f] p-6 text-[#f6f0e2] shadow-elevated-lg">
+      <TiltCard
+        tiltLimit={7}
+        scale={1.015}
+        perspective={1000}
+        effect="gravitate"
+        className="rounded-3xl bg-gradient-to-br from-[#3b2f22] via-[#2c2318] to-[#1e170f] p-6 text-[#f6f0e2] shadow-elevated-lg"
+      >
         <div className="pointer-events-none absolute -top-16 -right-10 h-48 w-48 rounded-full bg-accent/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
 
@@ -98,7 +105,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </div>
+      </TiltCard>
 
       <div>
         <div className="mb-3 flex items-center justify-between">

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
+import Rays from "@/components/light-rays";
+import { BlurReveal } from "@/components/blur-reveal";
+import { WordsStagger } from "@/components/words-stagger";
 
 export default function WelcomePage() {
   return (
@@ -13,6 +16,16 @@ export default function WelcomePage() {
           background:
             "radial-gradient(120% 60% at 50% 0%, #f6ead0 0%, #e8cf9e 28%, #b88a55 58%, #6b4a2e 82%, #241a10 100%)",
         }}
+      />
+      <Rays
+        backgroundColor="transparent"
+        raysColor={{ mode: "single", color: "#fff3d6" }}
+        intensity={32}
+        rays={30}
+        reach={40}
+        position={50}
+        animation={{ animate: true, speed: 5 }}
+        style={{ zIndex: 0 }}
       />
       <div
         className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
@@ -50,13 +63,21 @@ export default function WelcomePage() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#140d06] via-[#140d06]/85 to-transparent" />
           <div className="relative space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-700">
             <div className="space-y-2">
-              <h1 className="text-[28px] leading-[1.15] font-medium text-balance text-[#faf3e2]">
+              <BlurReveal
+                as="h1"
+                speedReveal={2}
+                className="text-[28px] leading-[1.15] font-medium text-balance text-[#faf3e2]"
+              >
                 Bem-vindo ao Raiz.
-              </h1>
-              <p className="max-w-[32ch] text-[13.5px] leading-relaxed text-[#faf3e2]/70">
+              </BlurReveal>
+              <WordsStagger
+                delay={0.35}
+                stagger={0.05}
+                className="max-w-[32ch] text-[13.5px] leading-relaxed text-[#faf3e2]/70"
+              >
                 Um espaço simples e acolhedor pra ler, refletir e crescer na
                 Palavra, um pouco a cada dia.
-              </p>
+              </WordsStagger>
             </div>
 
             <Link

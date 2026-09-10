@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
+import { FlowButton } from "@/components/flow-button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
 import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
@@ -57,9 +57,26 @@ export default function AgePage() {
                     : "border-muted-foreground/40"
                 )}
               >
-                {isSelected && (
-                  <Check className="h-3 w-3 text-accent-foreground" strokeWidth={3} />
-                )}
+                <svg viewBox="0 0 20 20" className="h-3 w-3 text-accent-foreground">
+                  <motion.path
+                    d="M 0 4.5 L 3.182 8 L 10 0"
+                    fill="transparent"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    transform="translate(5 6)"
+                    initial={false}
+                    animate={{
+                      pathLength: isSelected ? 1 : 0,
+                      opacity: isSelected ? 1 : 0,
+                    }}
+                    transition={{
+                      pathLength: { ease: "easeOut", duration: 0.3 },
+                      opacity: { duration: 0 },
+                    }}
+                  />
+                </svg>
               </span>
             </button>
           );
@@ -67,18 +84,24 @@ export default function AgePage() {
       </div>
 
       {selected ? (
-        <Button
-          size="lg"
-          className="mt-6 w-full rounded-full shadow-elevated"
-          nativeButton={false}
-          render={<Link href="/caminhada" transitionTypes={["nav-forward"]} />}
+        <FlowButton
+          asChild
+          fullWidth
+          borderColor="var(--accent)"
+          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-elevated"
+        >
+          <Link href="/caminhada" transitionTypes={["nav-forward"]}>
+            Continuar
+          </Link>
+        </FlowButton>
+      ) : (
+        <FlowButton
+          fullWidth
+          disabled
+          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground opacity-40"
         >
           Continuar
-        </Button>
-      ) : (
-        <Button size="lg" disabled className="mt-6 w-full rounded-full opacity-40">
-          Continuar
-        </Button>
+        </FlowButton>
       )}
     </div>
     </PageTransition>

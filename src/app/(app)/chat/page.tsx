@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, BookOpen, MoreHorizontal } from "lucide-react";
 import { Mascot } from "@/components/mascot";
+import { CopyButton } from "@/components/copy-button";
 import { verseRef } from "@/lib/reading-data";
 import { cn } from "@/lib/utils";
 
@@ -148,10 +149,13 @@ export default function ChatPage() {
               )}
               {m.verseCard && (
                 <div className="ml-6 mt-2 max-w-[82%] rounded-2xl rounded-bl-sm border border-border bg-card p-3 shadow-elevated">
-                  <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-accent">
-                    <BookOpen className="h-3 w-3" strokeWidth={2} />
-                    {m.verseCard.ref}
-                  </p>
+                  <div className="mb-1.5 flex items-center justify-between gap-1.5">
+                    <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-accent">
+                      <BookOpen className="h-3 w-3" strokeWidth={2} />
+                      {m.verseCard.ref}
+                    </p>
+                    <CopyButton value={m.verseCard.quote} size="sm" className="-mr-1 -mt-1 h-6 w-6 text-muted-foreground" />
+                  </div>
                   <p className="mb-1.5 font-serif text-[13px] italic leading-relaxed">
                     &ldquo;{m.verseCard.quote}&rdquo;
                   </p>

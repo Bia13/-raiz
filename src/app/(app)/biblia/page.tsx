@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, List, Search, Pencil, Copy, X, Check } from "lucide-react";
+import { ChevronLeft, List, Search, Pencil, X, Ban } from "lucide-react";
 import { Mascot } from "@/components/mascot";
+import { ColorSelector } from "@/components/color-selector";
+import { CopyButton } from "@/components/copy-button";
 import { CURRENT_CHAPTER, VERSES, verseRef } from "@/lib/reading-data";
 import {
   HIGHLIGHT_STYLES,
@@ -49,11 +51,22 @@ export default function BibliaPage() {
     setActiveVerse((prev) => (prev === n ? null : n));
   }
 
-  function applyHighlight(color: HighlightColor) {
+  function setHighlightColor(color: HighlightColor) {
     if (activeVerse === null) return;
-    const current = entries[activeVerse]?.color;
-    updateEntry(activeVerse, { color: current === color ? undefined : color });
+    updateEntry(activeVerse, { color });
   }
+
+  function clearHighlightColor() {
+    if (activeVerse === null) return;
+    updateEntry(activeVerse, { color: undefined });
+  }
+
+  const colorByHex = Object.fromEntries(
+    (Object.keys(HIGHLIGHT_STYLES) as HighlightColor[]).map((c) => [HIGHLIGHT_STYLES[c].dot, c])
+  ) as Record<string, HighlightColor>;
+  const colorHexes = (Object.keys(HIGHLIGHT_STYLES) as HighlightColor[]).map(
+    (c) => HIGHLIGHT_STYLES[c].dot
+  );
 
   function openNote() {
     if (activeVerse === null) return;
@@ -103,23 +116,31 @@ export default function BibliaPage() {
           <span className="mr-1 text-[11px] font-bold text-[#f6f0e2]/70">
             {activeVerse !== null ? verseRef(activeVerse) : ""}
           </span>
-          <div className="ml-auto flex items-center gap-1.5">
-            {(Object.keys(HIGHLIGHT_STYLES) as HighlightColor[]).map((color) => {
-              const isOn = activeVerse !== null && entries[activeVerse]?.color === color;
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => applyHighlight(color)}
-                  aria-label={`Grifar em ${HIGHLIGHT_STYLES[color].label}`}
-                  className="flex h-7 w-7 items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ backgroundColor: HIGHLIGHT_STYLES[color].dot }}
-                >
-                  {isOn && <Check className="h-3.5 w-3.5 text-[#241c14]" strokeWidth={3} />}
-                </button>
-              );
-            })}
-            <span className="mx-1 h-5 w-px bg-white/15" />
+          <div className="ml-auto flex items-center gap-2">
+            {activeVerse !== null && (
+              <ColorSelector
+                key={activeVerse}
+                colors={colorHexes}
+                defaultValue={
+                  (entries[activeVerse]?.color && HIGHLIGHT_STYLES[entries[activeVerse].color!].dot) ||
+                  colorHexes[0]
+                }
+                size="sm"
+                onColorSelect={(hex) => {
+                  const color = colorByHex[hex];
+                  if (color) setHighlightColor(color);
+                }}
+              />
+            )}
+            <button
+              type="button"
+              onClick={clearHighlightColor}
+              aria-label="Remover grifo"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#f6f0e2] hover:bg-white/10"
+            >
+              <Ban className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+            <span className="mx-0.5 h-5 w-px bg-white/15" />
             <button
               type="button"
               onClick={openNote}
@@ -128,13 +149,11 @@ export default function BibliaPage() {
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
-            <button
-              type="button"
-              aria-label="Copiar"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[#f6f0e2] hover:bg-white/10"
-            >
-              <Copy className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
+            <CopyButton
+              value={activeVerse !== null ? (VERSES.find((v) => v.number === activeVerse)?.text ?? "") : ""}
+              size="sm"
+              className="text-[#f6f0e2] hover:bg-white/10"
+            />
             <button
               type="button"
               onClick={() => setActiveVerse(null)}

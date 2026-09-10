@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookOpen, MessageCircle, Sprout, HandHeart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FlowButton } from "@/components/flow-button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
 import { PageTransition } from "@/components/page-transition";
 
@@ -66,14 +66,16 @@ export default function FeaturesPage() {
         ))}
       </div>
 
-      <Button
-        size="lg"
-        className="mt-6 w-full rounded-full shadow-elevated"
-        nativeButton={false}
-        render={<Link href="/home" transitionTypes={["nav-forward"]} />}
+      <FlowButton
+        asChild
+        fullWidth
+        borderColor="var(--accent)"
+        className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-elevated"
       >
-        Continuar
-      </Button>
+        <Link href="/home" transitionTypes={["nav-forward"]}>
+          Continuar
+        </Link>
+      </FlowButton>
     </div>
     </PageTransition>
   );
