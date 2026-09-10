@@ -171,6 +171,17 @@
   }
 }
 
+/* Twinkling stars behind the guided-prayer stage */
+@keyframes raiz-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
 /* Directional view transitions between onboarding steps (see PageTransition) */
 ::view-transition {
   pointer-events: none;

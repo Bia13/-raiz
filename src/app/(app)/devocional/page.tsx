@@ -2,9 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { X, ArrowRight, Check, Volume2, VolumeX } from "lucide-react";
 import { completeToday } from "@/lib/streak-store";
 import { createAmbientPad } from "@/lib/ambient-audio";
+
+type Star = { top: number; left: number; size: number; delay: number; duration: number };
+
+function makeStars(count: number): Star[] {
+  return Array.from({ length: count }, () => ({
+    top: Math.random() * 62,
+    left: Math.random() * 100,
+    size: 1 + Math.random() * 1.6,
+    delay: Math.random() * 5,
+    duration: 2.5 + Math.random() * 3,
+  }));
+}
 
 type Stage = "reading" | "prayer" | "done";
 
@@ -34,8 +47,19 @@ export default function DevocionalPage() {
   const [step, setStep] = useState(0);
   const [streak, setStreak] = useState<number | null>(null);
   const [muted, setMuted] = useState(false);
+  const [breath, setBreath] = useState<"in" | "out">("in");
+  const [stars] = useState(() => makeStars(24));
 
   const padRef = useRef<ReturnType<typeof createAmbientPad>>(null);
+
+  // Breathing cue — toggles in sync with the circle's 8s scale cycle.
+  useEffect(() => {
+    if (stage !== "prayer") return;
+    const interval = setInterval(() => {
+      setBreath((b) => (b === "in" ? "out" : "in"));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [stage]);
 
   // Auto-advance each prayer step after STEP_SECONDS, unless the user
   // moves on manually first (which resets this effect via the `step` dep).
@@ -150,8 +174,25 @@ export default function DevocionalPage() {
   if (stage === "prayer") {
     const current = PRAYER_STEPS[step];
     return (
-      <div className="-mx-5 -mt-6 -mb-28 flex flex-1 flex-col bg-gradient-to-b from-[#241c14] to-[#17120d] px-5 pt-6 pb-10 text-[#f0e6d0]">
-        <div className="flex items-center justify-between pb-4">
+      <div className="relative -mx-5 -mt-6 -mb-28 flex flex-1 flex-col overflow-hidden bg-gradient-to-b from-[#241c14] to-[#17120d] px-5 pt-6 pb-10 text-[#f0e6d0]">
+        {/* Twinkling stars */}
+        <div className="pointer-events-none absolute inset-0">
+          {stars.map((s, i) => (
+            <span
+              key={i}
+              className="absolute rounded-full bg-[#f0e6d0]"
+              style={{
+                top: `${s.top}%`,
+                left: `${s.left}%`,
+                width: s.size,
+                height: s.size,
+                animation: `raiz-twinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="relative flex items-center justify-between pb-4">
           <Link
             href="/home"
             aria-label="Fechar"
@@ -173,7 +214,7 @@ export default function DevocionalPage() {
           </button>
         </div>
 
-        <div className="flex gap-1.5">
+        <div className="relative flex gap-1.5">
           {PRAYER_STEPS.map((s, i) => (
             <div
               key={s.label}
@@ -184,33 +225,75 @@ export default function DevocionalPage() {
                 <div
                   key={step}
                   className="h-full rounded-full bg-[#d3865c]"
-                  style={{ animation: `raiz-fillbar ${STEP_SECONDS}s linear forwards` }}
+                  style={{
+                    animation: `raiz-fillbar ${STEP_SECONDS}s linear forwards`,
+                    boxShadow: "0 0 6px rgba(211,134,92,.7)",
+                  }}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="flex flex-1 flex-col items-center justify-center gap-7 py-10 text-center">
-          <div className="relative flex h-[150px] w-[150px] items-center justify-center">
-            <span className="absolute inset-0 rounded-full border border-[#d3865c]/35" />
-            <span className="absolute inset-[19px] rounded-full border border-[#d3865c]/50" />
-            <span className="absolute inset-[36px] animate-pulse rounded-full border border-[#d3865c]/70 bg-[#d3865c]/20" />
+        <div className="relative flex flex-1 flex-col items-center justify-center gap-6 py-8 text-center">
+          <div className="relative flex h-[170px] w-[170px] items-center justify-center">
+            <div
+              className="absolute h-full w-full rounded-full blur-2xl"
+              style={{ background: "radial-gradient(circle, rgba(211,134,92,.35), transparent 70%)" }}
+            />
+            <motion.div
+              className="absolute inset-[8px] rounded-full border border-[#d3865c]/30"
+              animate={{ scale: [1, 1.14, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute inset-[30px] rounded-full border border-[#d3865c]/45"
+              animate={{ scale: [1, 1.14, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.15 }}
+            />
+            <motion.div
+              className="absolute inset-[52px] rounded-full border border-[#d3865c]/70 bg-[#d3865c]/20"
+              animate={{ scale: [1, 1.14, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+            />
             <svg viewBox="0 0 24 24" className="relative h-7 w-7" fill="none" stroke="#f0e6d0" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 21s-6-4.5-9-8.5C1 9 2.5 5 6 5c2 0 3.5 1.3 4 2 .5-.7 2-2 4-2 3.5 0 5 4 3 7.5-3 4-9 8.5-9 8.5z" />
             </svg>
           </div>
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#d3865c]">
-              Passo {step + 1} de {PRAYER_STEPS.length} · {current.label}
-            </p>
-            <p className="mx-auto max-w-[26ch] font-serif text-lg leading-snug text-balance">
-              {current.prompt}
-            </p>
-          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={breath}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-[11px] font-bold tracking-[0.22em] text-[#d3865c]/85 uppercase"
+            >
+              {breath === "in" ? "Inspire" : "Solte o ar"}
+            </motion.p>
+          </AnimatePresence>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="space-y-2"
+            >
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#d3865c]">
+                Passo {step + 1} de {PRAYER_STEPS.length} · {current.label}
+              </p>
+              <p className="mx-auto max-w-[26ch] font-serif text-lg leading-snug text-balance">
+                {current.prompt}
+              </p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="relative flex items-center justify-between">
           <button
             type="button"
             onClick={finishPrayerStep}
@@ -218,14 +301,15 @@ export default function DevocionalPage() {
           >
             Pular passo
           </button>
-          <button
+          <motion.button
             type="button"
             onClick={finishPrayerStep}
             aria-label="Próximo passo"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#d3865c] text-[#241c14] transition-transform active:scale-90"
+            whileTap={{ scale: 0.9 }}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#d3865c] text-[#241c14]"
           >
             <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.4} />
-          </button>
+          </motion.button>
         </div>
       </div>
     );
