@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Flame, Headphones } from "lucide-react";
+import { ArrowRight, BookOpen, Headphones } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { StreakBadge } from "@/components/streak-badge";
 import { cn } from "@/lib/utils";
 
 const WEEK = [
@@ -37,15 +38,7 @@ export default function HomePage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 shadow-elevated">
-          <Flame
-            className="h-4 w-4 text-accent"
-            strokeWidth={2}
-            fill="currentColor"
-            fillOpacity={0.18}
-          />
-          <span className="text-sm font-bold tabular-nums">7</span>
-        </div>
+        <StreakBadge />
       </div>
 
       <div className="relative flex justify-between">

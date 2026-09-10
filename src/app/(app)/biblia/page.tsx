@@ -5,22 +5,17 @@ import Link from "next/link";
 import { ChevronLeft, List, Search, Pencil, Copy, X, Check } from "lucide-react";
 import { Mascot } from "@/components/mascot";
 import { CURRENT_CHAPTER, VERSES, verseRef } from "@/lib/reading-data";
+import {
+  HIGHLIGHT_STYLES,
+  updateHighlights,
+  useHighlights,
+  type HighlightColor,
+} from "@/lib/highlights-store";
 import { cn } from "@/lib/utils";
-
-type HighlightColor = "amber" | "olive" | "gold";
-
-const HIGHLIGHTS: Record<HighlightColor, { bg: string; dot: string }> = {
-  amber: { bg: "rgba(211,134,92,.28)", dot: "#d3865c" },
-  olive: { bg: "rgba(143,168,120,.32)", dot: "#8fa878" },
-  gold: { bg: "rgba(201,168,106,.35)", dot: "#c9a86a" },
-};
 
 export default function BibliaPage() {
   const [progress, setProgress] = useState(0);
-  const [highlights, setHighlights] = useState<Record<number, HighlightColor>>({
-    1: "amber",
-  });
-  const [notes, setNotes] = useState<Record<number, string>>({});
+  const entries = useHighlights();
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [noteVerse, setNoteVerse] = useState<number | null>(null);
@@ -35,32 +30,40 @@ export default function BibliaPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  function updateEntry(verse: number, patch: Partial<{ color?: HighlightColor; note?: string }>) {
+    updateHighlights((prev) => {
+      const current = prev[verse] ?? { updatedAt: Date.now() };
+      const next = { ...current, ...patch, updatedAt: Date.now() };
+      const isEmpty = !next.color && !next.note?.trim();
+      const copy = { ...prev };
+      if (isEmpty) {
+        delete copy[verse];
+      } else {
+        copy[verse] = next;
+      }
+      return copy;
+    });
+  }
+
   function toggleVerse(n: number) {
     setActiveVerse((prev) => (prev === n ? null : n));
   }
 
   function applyHighlight(color: HighlightColor) {
     if (activeVerse === null) return;
-    setHighlights((prev) => {
-      const next = { ...prev };
-      if (next[activeVerse] === color) {
-        delete next[activeVerse];
-      } else {
-        next[activeVerse] = color;
-      }
-      return next;
-    });
+    const current = entries[activeVerse]?.color;
+    updateEntry(activeVerse, { color: current === color ? undefined : color });
   }
 
   function openNote() {
     if (activeVerse === null) return;
     setNoteVerse(activeVerse);
-    setNoteDraft(notes[activeVerse] ?? "");
+    setNoteDraft(entries[activeVerse]?.note ?? "");
   }
 
   function saveNote() {
     if (noteVerse === null) return;
-    setNotes((prev) => ({ ...prev, [noteVerse]: noteDraft }));
+    updateEntry(noteVerse, { note: noteDraft.trim() || undefined });
     setNoteVerse(null);
     setActiveVerse(null);
   }
@@ -101,16 +104,16 @@ export default function BibliaPage() {
             {activeVerse !== null ? verseRef(activeVerse) : ""}
           </span>
           <div className="ml-auto flex items-center gap-1.5">
-            {(Object.keys(HIGHLIGHTS) as HighlightColor[]).map((color) => {
-              const isOn = activeVerse !== null && highlights[activeVerse] === color;
+            {(Object.keys(HIGHLIGHT_STYLES) as HighlightColor[]).map((color) => {
+              const isOn = activeVerse !== null && entries[activeVerse]?.color === color;
               return (
                 <button
                   key={color}
                   type="button"
                   onClick={() => applyHighlight(color)}
-                  aria-label={`Grifar em ${color}`}
+                  aria-label={`Grifar em ${HIGHLIGHT_STYLES[color].label}`}
                   className="flex h-7 w-7 items-center justify-center rounded-full transition-transform active:scale-90"
-                  style={{ backgroundColor: HIGHLIGHTS[color].dot }}
+                  style={{ backgroundColor: HIGHLIGHT_STYLES[color].dot }}
                 >
                   {isOn && <Check className="h-3.5 w-3.5 text-[#241c14]" strokeWidth={3} />}
                 </button>
@@ -154,8 +157,8 @@ export default function BibliaPage() {
 
         <p className="font-serif text-[15px] leading-[1.9]">
           {VERSES.map((v) => {
-            const highlight = highlights[v.number];
-            const hasNote = Boolean(notes[v.number]?.trim());
+            const entry = entries[v.number];
+            const hasNote = Boolean(entry?.note?.trim());
             const isActive = activeVerse === v.number;
             return (
               <span key={v.number} className="relative">
@@ -172,7 +175,9 @@ export default function BibliaPage() {
                     isActive && "ring-2 ring-accent/50"
                   )}
                   style={{
-                    backgroundColor: highlight ? HIGHLIGHTS[highlight].bg : undefined,
+                    backgroundColor: entry?.color
+                      ? HIGHLIGHT_STYLES[entry.color].bg
+                      : undefined,
                   }}
                 >
                   {v.text}
