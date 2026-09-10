@@ -48,8 +48,15 @@ type NoteItem =
       id: string;
       text: string;
       reference?: string;
+      /** Populated when `reference` exactly matches a known verse. */
+      matchedQuote?: string;
       updatedAt: number;
     };
+
+function findMatchedQuote(reference?: string): string | undefined {
+  if (!reference) return undefined;
+  return VERSES.find((v) => verseRef(v.number) === reference)?.text;
+}
 
 type JournalDraft = { id: string | null; text: string; reference: string };
 
@@ -86,6 +93,7 @@ export default function NotasPage() {
       id: entry.id,
       text: entry.text,
       reference: entry.reference,
+      matchedQuote: findMatchedQuote(entry.reference),
       updatedAt: entry.updatedAt,
     }));
 
@@ -299,9 +307,16 @@ export default function NotasPage() {
                   )}
                 </>
               ) : (
-                <p className="line-clamp-3 text-sm leading-relaxed text-foreground">
-                  {item.text}
-                </p>
+                <>
+                  {item.matchedQuote && (
+                    <p className="mb-2 rounded bg-accent/10 px-2 py-1.5 font-serif text-sm italic leading-snug text-foreground">
+                      &ldquo;{item.matchedQuote}&rdquo;
+                    </p>
+                  )}
+                  <p className="line-clamp-3 text-sm leading-relaxed text-foreground">
+                    {item.text}
+                  </p>
+                </>
               )}
             </button>
           ))}
@@ -403,6 +418,15 @@ export default function NotasPage() {
                 }
               />
             </div>
+
+            {(() => {
+              const preview = findMatchedQuote(journalDraft.reference);
+              return preview ? (
+                <p className="mb-3 rounded-lg bg-accent/10 px-3 py-2 font-serif text-sm italic leading-snug text-foreground animate-in fade-in duration-200">
+                  &ldquo;{preview}&rdquo;
+                </p>
+              ) : null;
+            })()}
 
             <textarea
               autoFocus

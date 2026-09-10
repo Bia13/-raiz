@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { FlowButton } from "@/components/flow-button";
+import { Button } from "@/components/ui/button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
 import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
@@ -84,24 +84,18 @@ export default function AgePage() {
       </div>
 
       {selected ? (
-        <FlowButton
-          asChild
-          fullWidth
-          borderColor="var(--accent)"
-          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-elevated"
-        >
-          <Link href="/caminhada" transitionTypes={["nav-forward"]}>
-            Continuar
-          </Link>
-        </FlowButton>
-      ) : (
-        <FlowButton
-          fullWidth
-          disabled
-          className="mt-6 h-auto w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground opacity-40"
+        <Button
+          size="lg"
+          className="mt-6 w-full rounded-full shadow-elevated"
+          nativeButton={false}
+          render={<Link href="/caminhada" transitionTypes={["nav-forward"]} />}
         >
           Continuar
-        </FlowButton>
+        </Button>
+      ) : (
+        <Button size="lg" disabled className="mt-6 w-full rounded-full opacity-40">
+          Continuar
+        </Button>
       )}
     </div>
     </PageTransition>
