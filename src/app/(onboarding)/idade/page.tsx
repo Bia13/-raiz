@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
+import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
 
 const AGE_GROUPS = [
@@ -20,6 +21,7 @@ export default function AgePage() {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
+    <PageTransition>
     <div className="flex flex-1 flex-col">
       <OnboardingTopBar backHref="/" skipHref="/caminhada" step={1} />
 
@@ -64,14 +66,21 @@ export default function AgePage() {
         })}
       </div>
 
-      <Button
-        size="lg"
-        className="mt-6 w-full rounded-full shadow-elevated"
-        nativeButton={false}
-        render={<Link href="/caminhada" />}
-      >
-        Continuar
-      </Button>
+      {selected ? (
+        <Button
+          size="lg"
+          className="mt-6 w-full rounded-full shadow-elevated"
+          nativeButton={false}
+          render={<Link href="/caminhada" transitionTypes={["nav-forward"]} />}
+        >
+          Continuar
+        </Button>
+      ) : (
+        <Button size="lg" disabled className="mt-6 w-full rounded-full opacity-40">
+          Continuar
+        </Button>
+      )}
     </div>
+    </PageTransition>
   );
 }

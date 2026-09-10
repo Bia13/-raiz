@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, MessageCircle, Sprout, HandHeart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OnboardingTopBar } from "@/components/onboarding-topbar";
+import { PageTransition } from "@/components/page-transition";
 
 const FEATURES = [
   {
@@ -32,6 +33,7 @@ const FEATURES = [
 
 export default function FeaturesPage() {
   return (
+    <PageTransition>
     <div className="flex flex-1 flex-col">
       <OnboardingTopBar backHref="/caminhada" skipHref="/home" step={3} />
 
@@ -68,10 +70,11 @@ export default function FeaturesPage() {
         size="lg"
         className="mt-6 w-full rounded-full shadow-elevated"
         nativeButton={false}
-        render={<Link href="/home" />}
+        render={<Link href="/home" transitionTypes={["nav-forward"]} />}
       >
         Continuar
       </Button>
     </div>
+    </PageTransition>
   );
 }

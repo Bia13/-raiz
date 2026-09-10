@@ -18,6 +18,7 @@ export function OnboardingTopBar({
       <div className="mb-5 flex items-center justify-between">
         <Link
           href={backHref}
+          transitionTypes={["nav-back"]}
           aria-label="Voltar"
           className="-ml-1 flex h-8 w-8 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
         >
@@ -25,6 +26,7 @@ export function OnboardingTopBar({
         </Link>
         <Link
           href={skipHref}
+          transitionTypes={["nav-forward"]}
           className="text-xs font-bold text-muted-foreground transition-colors hover:text-foreground"
         >
           Pular

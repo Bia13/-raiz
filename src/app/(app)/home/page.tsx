@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Headphones } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { StreakBadge } from "@/components/streak-badge";
+import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
 
 const WEEK = [
@@ -23,6 +24,7 @@ const DEVOTIONALS = [
 
 export default function HomePage() {
   return (
+    <PageTransition>
     <div className="flex flex-col gap-7">
       <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
         <div className="flex items-center gap-3">
@@ -86,13 +88,7 @@ export default function HomePage() {
             reflete.&rdquo;
           </p>
           <div className="mt-5 flex w-full gap-2">
-            <button
-              type="button"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white/10 py-2.5 text-xs font-bold transition-colors hover:bg-white/15"
-            >
-              <Headphones className="h-3.5 w-3.5" strokeWidth={2} />
-              Ouvir
-            </button>
+            
             <Link
               href="/devocional"
               className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#d3865c] py-2.5 text-xs font-bold text-[#241c14] shadow-[0_8px_20px_-8px_rgba(211,134,92,0.7)] transition-transform active:scale-[0.98]"
@@ -141,5 +137,6 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </PageTransition>
   );
 }

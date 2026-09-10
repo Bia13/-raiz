@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { X, ArrowRight, Check, Volume2 } from "lucide-react";
+import { X, ArrowRight, Check, Volume2, VolumeX } from "lucide-react";
 import { completeToday } from "@/lib/streak-store";
+import { createAmbientPad } from "@/lib/ambient-audio";
 
 type Stage = "reading" | "prayer" | "done";
+
+const STEP_SECONDS = 20;
 
 const PRAYER_STEPS = [
   {
@@ -30,14 +33,48 @@ export default function DevocionalPage() {
   const [stage, setStage] = useState<Stage>("reading");
   const [step, setStep] = useState(0);
   const [streak, setStreak] = useState<number | null>(null);
+  const [muted, setMuted] = useState(false);
+
+  const padRef = useRef<ReturnType<typeof createAmbientPad>>(null);
+
+  // Auto-advance each prayer step after STEP_SECONDS, unless the user
+  // moves on manually first (which resets this effect via the `step` dep).
+  useEffect(() => {
+    if (stage !== "prayer") return;
+    const timeout = setTimeout(() => {
+      finishPrayerStep();
+    }, STEP_SECONDS * 1000);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, step]);
+
+  // Ambient pad only plays during the prayer stage; always clean up on unmount.
+  useEffect(() => {
+    return () => {
+      padRef.current?.stop();
+      padRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    padRef.current?.setMuted(muted);
+  }, [muted]);
+
+  function startPrayer() {
+    padRef.current = createAmbientPad();
+    padRef.current?.setMuted(muted);
+    setStage("prayer");
+  }
 
   function finishPrayerStep() {
     if (step < PRAYER_STEPS.length - 1) {
       setStep((s) => s + 1);
-    } else {
-      setStreak(completeToday());
-      setStage("done");
+      return;
     }
+    padRef.current?.stop();
+    padRef.current = null;
+    setStreak(completeToday());
+    setStage("done");
   }
 
   function share() {
@@ -101,7 +138,7 @@ export default function DevocionalPage() {
 
         <button
           type="button"
-          onClick={() => setStage("prayer")}
+          onClick={startPrayer}
           className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-elevated transition-transform active:scale-[0.98]"
         >
           Ir para oração guiada
@@ -122,17 +159,35 @@ export default function DevocionalPage() {
           >
             <X className="h-5 w-5" strokeWidth={1.9} />
           </Link>
-          <Volume2 className="h-[18px] w-[18px] text-[#f0e6d0]/60" strokeWidth={1.8} />
+          <button
+            type="button"
+            onClick={() => setMuted((m) => !m)}
+            aria-label={muted ? "Ativar música" : "Silenciar música"}
+            className="rounded-full p-1 text-[#f0e6d0]/60 transition-colors hover:text-[#f0e6d0]"
+          >
+            {muted ? (
+              <VolumeX className="h-[18px] w-[18px]" strokeWidth={1.8} />
+            ) : (
+              <Volume2 className="h-[18px] w-[18px]" strokeWidth={1.8} />
+            )}
+          </button>
         </div>
 
         <div className="flex gap-1.5">
           {PRAYER_STEPS.map((s, i) => (
-            <span
+            <div
               key={s.label}
-              className={`h-[3px] flex-1 rounded-full transition-colors ${
-                i <= step ? "bg-[#d3865c]" : "bg-white/15"
-              }`}
-            />
+              className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/15"
+            >
+              {i < step && <div className="h-full w-full rounded-full bg-[#d3865c]" />}
+              {i === step && (
+                <div
+                  key={step}
+                  className="h-full rounded-full bg-[#d3865c]"
+                  style={{ animation: `raiz-fillbar ${STEP_SECONDS}s linear forwards` }}
+                />
+              )}
+            </div>
           ))}
         </div>
 

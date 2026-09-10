@@ -160,3 +160,74 @@
       0 30px 60px -24px rgba(0, 0, 0, 0.7);
   }
 }
+
+/* Countdown fill for the guided-prayer step bar */
+@keyframes raiz-fillbar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* Directional view transitions between onboarding steps (see PageTransition) */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(.nav-forward) {
+  animation:
+    140ms ease-in both raiz-vt-fade reverse,
+    260ms ease-in-out both raiz-vt-slide-forward reverse;
+}
+::view-transition-new(.nav-forward) {
+  animation:
+    190ms ease-out 90ms both raiz-vt-fade,
+    260ms ease-in-out both raiz-vt-slide-forward;
+}
+
+::view-transition-old(.nav-back) {
+  animation:
+    140ms ease-in both raiz-vt-fade reverse,
+    260ms ease-in-out both raiz-vt-slide-back reverse;
+}
+::view-transition-new(.nav-back) {
+  animation:
+    190ms ease-out 90ms both raiz-vt-fade,
+    260ms ease-in-out both raiz-vt-slide-back;
+}
+
+@keyframes raiz-vt-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes raiz-vt-slide-forward {
+  from {
+    translate: 28px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes raiz-vt-slide-back {
+  from {
+    translate: -28px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
