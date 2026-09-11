@@ -6,13 +6,25 @@ export type HighlightEntry = {
   color?: HighlightColor;
   note?: string;
   updatedAt: number;
+  /** Human-readable reference, e.g. "Salmos 23:1" — denormalized so Notas can render it without the chapter loaded. */
+  reference: string;
+  /** Verse text snapshotted at highlight time, for the same reason. */
+  quote: string;
 };
 
-export type HighlightsMap = Record<number, HighlightEntry>;
+/** Keyed by `verseKey()` from `bible-api.ts` (e.g. "PSA-23-1") — unique across the whole Bible. */
+export type HighlightsMap = Record<string, HighlightEntry>;
 
-const KEY = "raiz:salmos-23:marks";
+const KEY = "raiz:bible:highlights";
 const EVENT = "raiz:highlights-changed";
-const DEFAULT_MAP: HighlightsMap = { 1: { color: "amber", updatedAt: 0 } };
+const DEFAULT_MAP: HighlightsMap = {
+  "PSA-23-1": {
+    color: "amber",
+    updatedAt: 0,
+    reference: "Salmos 23:1",
+    quote: "O Senhor é o meu pastor; nada me faltará.",
+  },
+};
 
 let cache: HighlightsMap | null = null;
 

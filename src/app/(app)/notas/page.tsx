@@ -37,7 +37,8 @@ const FILTERS: { key: Filter; label: string }[] = [
 type NoteItem =
   | {
       kind: "verse";
-      verse: number;
+      key: string;
+      reference: string;
       quote: string;
       color?: HighlightColor;
       note?: string;
@@ -66,27 +67,22 @@ export default function NotasPage() {
 
   const [filter, setFilter] = useState<Filter>("todos");
   const [query, setQuery] = useState("");
-  const [openVerse, setOpenVerse] = useState<number | null>(null);
+  const [openVerse, setOpenVerse] = useState<string | null>(null);
   const [verseDraft, setVerseDraft] = useState("");
   const [journalDraft, setJournalDraft] = useState<JournalDraft | null>(null);
 
   const items = useMemo(() => {
-    const verseItems: NoteItem[] = Object.entries(highlights)
-      .map((entryPair): NoteItem | null => {
-        const [verseStr, entry] = entryPair;
-        const verse = Number(verseStr);
-        const verseData = VERSES.find((v) => v.number === verse);
-        if (!verseData) return null;
-        return {
-          kind: "verse",
-          verse,
-          quote: verseData.text,
-          color: entry.color,
-          note: entry.note,
-          updatedAt: entry.updatedAt,
-        };
+    const verseItems: NoteItem[] = Object.entries(highlights).map(
+      ([key, entry]): NoteItem => ({
+        kind: "verse",
+        key,
+        reference: entry.reference,
+        quote: entry.quote,
+        color: entry.color,
+        note: entry.note,
+        updatedAt: entry.updatedAt,
       })
-      .filter((item): item is NoteItem => item !== null);
+    );
 
     const journalItems: NoteItem[] = Object.values(journal).map((entry: JournalEntry) => ({
       kind: "journal" as const,
@@ -122,11 +118,11 @@ export default function NotasPage() {
       .sort((a, b) => b.updatedAt - a.updatedAt);
   }, [highlights, journal, filter, query]);
 
-  const openVerseData = openVerse !== null ? VERSES.find((v) => v.number === openVerse) : undefined;
+  const openVerseEntry = openVerse !== null ? highlights[openVerse] : undefined;
 
-  function startEditingVerse(verse: number) {
-    setOpenVerse(verse);
-    setVerseDraft(highlights[verse]?.note ?? "");
+  function startEditingVerse(key: string) {
+    setOpenVerse(key);
+    setVerseDraft(highlights[key]?.note ?? "");
   }
 
   function saveVerseNote() {
@@ -137,10 +133,10 @@ export default function NotasPage() {
     }));
   }
 
-  function removeVerseEntry(verse: number) {
+  function removeVerseEntry(key: string) {
     updateHighlights((prev) => {
       const next = { ...prev };
-      delete next[verse];
+      delete next[key];
       return next;
     });
     setOpenVerse(null);
@@ -243,11 +239,11 @@ export default function NotasPage() {
         <div className="flex flex-col gap-2.5 pb-20">
           {items.map((item, i) => (
             <button
-              key={item.kind === "verse" ? `verse-${item.verse}` : item.id}
+              key={item.kind === "verse" ? `verse-${item.key}` : item.id}
               type="button"
               onClick={() =>
                 item.kind === "verse"
-                  ? startEditingVerse(item.verse)
+                  ? startEditingVerse(item.key)
                   : setJournalDraft({
                       id: item.id,
                       text: item.text,
@@ -267,7 +263,7 @@ export default function NotasPage() {
                           style={{ backgroundColor: HIGHLIGHT_STYLES[item.color].dot }}
                         />
                       )}
-                      {verseRef(item.verse)}
+                      {item.reference}
                     </>
                   ) : item.reference ? (
                     <>
@@ -340,7 +336,7 @@ export default function NotasPage() {
       </div>
 
       {/* Verse note sheet */}
-      {openVerse !== null && openVerseData && (
+      {openVerse !== null && openVerseEntry && (
         <div className="fixed inset-0 z-30 flex items-end justify-center">
           <div
             className="absolute inset-0 bg-black/35 backdrop-blur-sm animate-in fade-in duration-200"
@@ -349,10 +345,10 @@ export default function NotasPage() {
           <div className="relative w-full max-w-sm animate-in slide-in-from-bottom duration-200 rounded-t-3xl bg-card p-5 pb-6 shadow-elevated-lg">
             <div className="mx-auto mb-4 h-1 w-8 rounded-full bg-border" />
             <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-accent">
-              {verseRef(openVerse)}
+              {openVerseEntry.reference}
             </p>
             <p className="mb-4 border-l-2 border-accent pl-3 font-serif text-sm italic leading-relaxed text-muted-foreground">
-              &ldquo;{openVerseData.text}&rdquo;
+              &ldquo;{openVerseEntry.quote}&rdquo;
             </p>
             <textarea
               value={verseDraft}
